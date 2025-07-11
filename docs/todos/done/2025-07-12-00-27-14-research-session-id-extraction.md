@@ -53,7 +53,7 @@ The test spawns a Claude process with a test message and verifies:
 2. The session ID matches UUID format
 3. The user message appears in the JSONL file
 
-The test uses node-pty to provide a PTY for Claude and --dangerously-skip-permissions to bypass trust prompts.
+The test uses node-pty to provide a PTY for Claude and automatically responds to trust prompts by sending Enter when detected.
 
 Run with: `npm test src/tests/session-detection.test.ts`
 

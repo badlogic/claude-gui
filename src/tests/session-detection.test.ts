@@ -31,8 +31,8 @@ describe('session detection', () => {
         const testStartTime = new Date();
         console.log('Test started at:', testStartTime);
 
-        // Spawn Claude in a PTY with trust bypass
-        ptyProcess = pty.spawn('claude', [TEST_MESSAGE, '--dangerously-skip-permissions'], {
+        // Spawn Claude in a PTY
+        ptyProcess = pty.spawn('claude', [TEST_MESSAGE], {
             name: 'xterm-color',
             cols: 80,
             rows: 30,

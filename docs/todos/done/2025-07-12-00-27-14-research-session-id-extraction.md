@@ -43,3 +43,18 @@ Research how to reliably extract the session ID when Claude Code starts.
 - [x] Note that we'll need file watching to detect new sessions
 - [x] Create test script to verify session detection (src/tests/session-detection.test.ts)
 - [x] User test: Verify this approach works with real Claude sessions
+
+## Notes
+Added test script at src/tests/session-detection.test.ts to verify the approach works correctly.
+
+## Test
+The test spawns a Claude process with a test message and verifies:
+1. A new JSONL file is created in the expected directory
+2. The session ID matches UUID format
+3. The user message appears in the JSONL file
+
+The test uses node-pty to provide a PTY for Claude and --dangerously-skip-permissions to bypass trust prompts.
+
+Run with: `npm test src/tests/session-detection.test.ts`
+
+✅ Test is passing!

@@ -1,6 +1,7 @@
 node_modules/
 dist/
 coverage/
+temp/
 *.log
 .DS_Store
 .env

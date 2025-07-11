@@ -56,36 +56,46 @@ The test in `src/tests/session-detection.test.ts` serves as a complete E2E bluep
 1. **PTY Process Management**
    - Spawns Claude in a PTY using node-pty
    - Provides proper terminal emulation for interactive mode
+   - Handles graceful shutdown and cleanup
 
 2. **Trust Prompt Handling**
    - Detects "Do you trust the files in this folder?" prompt
-   - Automatically responds by sending Enter key
+   - Automatically responds by sending '1' then Enter (\r)
+   - Works without --dangerously-skip-permissions flag
+   - Trust status stored in ~/.claude.json with hasTrustDialogAccepted field
+   - Trust is inherited by subdirectories
 
 3. **Ready State Detection**
    - Monitors PTY output for prompt indicators
    - Detects when Claude is ready for input ("> " or "for shortcuts")
+   - Implements timeout handling for robustness
 
 4. **Interactive Message Sending**
    - Sends messages programmatically to Claude's stdin
    - Uses proper Enter key sequence (\r) for submission
+   - Handles timing between text input and Enter key
 
 5. **Session File Discovery**
    - Converts CWD to Claude's project directory format
-   - Monitors for new JSONL files
+   - Monitors for new JSONL files with retry logic
    - Filters by creation time to find current session
 
 6. **JSONL Content Validation**
    - Reads and parses JSONL entries
    - Verifies user messages are recorded correctly
+   - Now also checks for assistant responses
+   - Reduced wait time from 30s to 10s
 
 ### Key Implementation Details:
-- Use `\r` (carriage return) for Enter key in PTY
+- Use `\r` (carriage return) for Enter key in PTY, not `\n`
 - Wait for Claude to be ready before sending messages
 - Handle asynchronous file creation with retry logic
 - Parse JSONL with proper error handling
+- Test uses project temp directory to avoid trust prompt in CI
+- Verifies both user input and assistant response
 
 This test effectively demonstrates all the components needed to build claude-gui's WebSocket wrapper.
 
-Run with: `npm test src/tests/session-detection.test.ts`
+Run with: `npm test`
 
 ✅ Test is passing!

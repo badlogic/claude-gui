@@ -50,7 +50,7 @@ describe('session detection', () => {
 
         // Log PTY output and handle prompts
         ptyProcess.onData((data) => {
-            console.log('PTY output:', data);
+            // console.log('PTY output:', data);
 
             // Check for trust prompt
             if (!trustPromptSeen && data.includes('Do you trust the files in this folder?')) {
@@ -147,12 +147,14 @@ describe('session detection', () => {
 
         expect(sessionId).toMatch(/^[a-f0-9-]{36}$/); // UUID format
 
-        // Wait for user message to appear in JSONL
+        // Wait for user and assistant messages to appear in JSONL
         const jsonlPath = join(projectsDir, newestFile);
         let foundUserMessage = false;
+        let foundAssistantMessage = false;
         console.log('Reading JSONL file:', jsonlPath);
 
-        for (let i = 0; i < 30; i++) {
+        // Wait max 10 seconds for both messages
+        for (let i = 0; i < 10; i++) {
             try {
                 const content = await fs.readFile(jsonlPath, 'utf8');
                 const lines = content.trim().split('\n').filter(Boolean);
@@ -166,15 +168,18 @@ describe('session detection', () => {
                             if (entry.message?.content === TEST_MESSAGE) {
                                 console.log('✓ Found matching user message!');
                                 foundUserMessage = true;
-                                break;
                             }
+                        }
+                        if (entry.type === 'assistant') {
+                            console.log('✓ Found assistant message!');
+                            foundAssistantMessage = true;
                         }
                     } catch (e) {
                         console.error('Failed to parse line:', e);
                     }
                 }
 
-                if (foundUserMessage) break;
+                if (foundUserMessage && foundAssistantMessage) break;
             } catch (err) {
                 console.error('Failed to read JSONL file:', err);
             }
@@ -183,5 +188,6 @@ describe('session detection', () => {
         }
 
         expect(foundUserMessage).toBe(true);
+        expect(foundAssistantMessage).toBe(true);
     }, 60000); // 60 second timeout for this test
 });

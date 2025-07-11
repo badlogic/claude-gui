@@ -59,14 +59,13 @@ npm test src/index.test.ts  # Run specific test
 
 ## Research
 
-### Completed Research
 - **Session ID Extraction & E2E Architecture Blueprint** ([docs/todos/done/2025-07-12-00-27-14-research-session-id-extraction.md](../todos/done/2025-07-12-00-27-14-research-session-id-extraction.md)): Comprehensive research that evolved into a complete E2E test demonstrating:
   - PTY-based Claude process management with node-pty
-  - Trust prompt detection and automatic response
+  - Trust prompt detection and automatic response (without --dangerously-skip-permissions)
   - Ready state detection for interactive input
-  - Programmatic message sending with proper key sequences
+  - Programmatic message sending with proper key sequences (\r for Enter)
   - Session file discovery and JSONL parsing
+  - Verification of both user messages and assistant responses
   - Full blueprint for claude-gui's WebSocket wrapper architecture
-
-### Pending Research
-- Define WebSocket event protocol based on JSONL content
+  
+  The test at `src/tests/session-detection.test.ts` serves as a working example of all core components needed.

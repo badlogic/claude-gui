@@ -30,6 +30,7 @@ src/
   server.ts      # HTTP + WebSocket server
   watcher.ts     # JSONL file watcher
   claude.ts      # Claude process management
+  tests/         # Integration and general tests
 web/
   index.html     # Web UI entry
   app.ts         # Lit application
@@ -44,6 +45,22 @@ dist/
 claude-gui [--no-gui] [--port PORT] -- [claude-args]
 ```
 
-## Research Tasks
-- Determine how to extract session ID from Claude Code
+## Testing
+
+Tests are written using Vitest. Test file placement:
+- **Module-specific tests**: Place next to the module being tested (e.g., `src/index.test.ts` for `src/index.ts`)
+- **Integration/general tests**: Place in `src/tests/` directory
+
+Example:
+```bash
+npm test                    # Run all tests
+npm test src/index.test.ts  # Run specific test
+```
+
+## Research
+
+### Completed Research
+- **Session ID Extraction** ([docs/todos/done/2025-07-12-00-27-14-research-session-id-extraction.md](../todos/done/2025-07-12-00-27-14-research-session-id-extraction.md)): Method to extract Claude session ID by monitoring `.claude/projects/` directory and finding the newest JSONL file by creation time.
+
+### Pending Research
 - Define WebSocket event protocol based on JSONL content

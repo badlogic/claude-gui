@@ -1,6 +1,6 @@
 # Research: Determine how to extract session ID from Claude Code
 
-**Status:** Refining
+**Status:** Completed
 **Created:** 2025-07-12T00:27:14
 **Agent PID:** 13406
 
@@ -11,7 +11,7 @@
     - Find reliable method to identify current session
 
 ## Description
-Research how to reliably extract the session ID when Claude Code starts.
+Research how to reliably extract the session ID when Claude Code starts. This evolved into creating a complete E2E test that demonstrates the full architecture needed for claude-gui.
 
 ## Research Findings
 
@@ -47,13 +47,44 @@ Research how to reliably extract the session ID when Claude Code starts.
 ## Notes
 Added test script at src/tests/session-detection.test.ts to verify the approach works correctly.
 
-## Test
-The test spawns a Claude process with a test message and verifies:
-1. A new JSONL file is created in the expected directory
-2. The session ID matches UUID format
-3. The user message appears in the JSONL file
+## E2E Test as Architecture Blueprint
 
-The test uses node-pty to provide a PTY for Claude and automatically responds to trust prompts by sending Enter when detected.
+The test in `src/tests/session-detection.test.ts` serves as a complete E2E blueprint for claude-gui architecture:
+
+### What the test demonstrates:
+
+1. **PTY Process Management**
+   - Spawns Claude in a PTY using node-pty
+   - Provides proper terminal emulation for interactive mode
+
+2. **Trust Prompt Handling**
+   - Detects "Do you trust the files in this folder?" prompt
+   - Automatically responds by sending Enter key
+
+3. **Ready State Detection**
+   - Monitors PTY output for prompt indicators
+   - Detects when Claude is ready for input ("> " or "for shortcuts")
+
+4. **Interactive Message Sending**
+   - Sends messages programmatically to Claude's stdin
+   - Uses proper Enter key sequence (\r) for submission
+
+5. **Session File Discovery**
+   - Converts CWD to Claude's project directory format
+   - Monitors for new JSONL files
+   - Filters by creation time to find current session
+
+6. **JSONL Content Validation**
+   - Reads and parses JSONL entries
+   - Verifies user messages are recorded correctly
+
+### Key Implementation Details:
+- Use `\r` (carriage return) for Enter key in PTY
+- Wait for Claude to be ready before sending messages
+- Handle asynchronous file creation with retry logic
+- Parse JSONL with proper error handling
+
+This test effectively demonstrates all the components needed to build claude-gui's WebSocket wrapper.
 
 Run with: `npm test src/tests/session-detection.test.ts`
 

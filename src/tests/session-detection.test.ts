@@ -31,8 +31,8 @@ describe('session detection', () => {
         const testStartTime = new Date();
         console.log('Test started at:', testStartTime);
 
-        // Spawn Claude in a PTY
-        ptyProcess = pty.spawn('claude', [TEST_MESSAGE], {
+        // Spawn Claude in a PTY without initial message
+        ptyProcess = pty.spawn('claude', [], {
             name: 'xterm-color',
             cols: 80,
             rows: 30,
@@ -40,18 +40,28 @@ describe('session detection', () => {
             env: process.env as { [key: string]: string },
         });
 
-        // Log PTY output for debugging and auto-respond to prompts
-        let trustSent = false;
+        // Track state
+        let trustPromptSeen = false;
+        let readyForInput = false;
+        let messageSent = false;
+
+        // Log PTY output and handle prompts
         ptyProcess.onData((data) => {
             console.log('PTY output:', data);
 
-            // If Claude asks about trusting files, automatically answer yes
-            if (!trustSent && data.includes('Do you trust the files in this folder?')) {
-                console.log('Sending trust confirmation...');
-                trustSent = true;
+            // Check for trust prompt
+            if (!trustPromptSeen && data.includes('Do you trust the files in this folder?')) {
+                console.log('Trust prompt detected, sending confirmation...');
+                trustPromptSeen = true;
                 setTimeout(() => {
                     ptyProcess?.write('\r'); // Press enter to select "Yes, proceed"
-                }, 500);
+                }, 200);
+            }
+
+            // Check if Claude is ready for input (look for the input prompt)
+            if (!readyForInput && (data.includes('> ') || data.includes('for shortcuts'))) {
+                console.log('Claude is ready for input');
+                readyForInput = true;
             }
         });
 
@@ -59,7 +69,31 @@ describe('session detection', () => {
             console.log('Claude exited with code:', exitCode, 'signal:', signal);
         });
 
-        // Wait for Claude to start and create session file
+        // Wait for Claude to be ready (trust prompt handled or timeout)
+        const maxWaitTime = 2000;
+        const startWait = Date.now();
+
+        while (!readyForInput && Date.now() - startWait < maxWaitTime) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+
+        if (!readyForInput) {
+            console.log('WARNING: Claude not ready after timeout, sending message anyway');
+        }
+
+        // Send our test message
+        console.log('Sending test message...');
+        ptyProcess.write(TEST_MESSAGE);
+
+        // Wait a bit for the text to appear
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
+        // Send Enter key (use CR like we do for trust prompt)
+        console.log('Sending Enter key...');
+        ptyProcess.write('\r');
+        messageSent = true;
+
+        // Wait for the message to be processed and session file to be created
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         // Find the newest JSONL file

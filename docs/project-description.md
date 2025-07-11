@@ -60,7 +60,13 @@ npm test src/index.test.ts  # Run specific test
 ## Research
 
 ### Completed Research
-- **Session ID Extraction** ([docs/todos/done/2025-07-12-00-27-14-research-session-id-extraction.md](../todos/done/2025-07-12-00-27-14-research-session-id-extraction.md)): Method to extract Claude session ID by monitoring `.claude/projects/` directory and finding the newest JSONL file by creation time.
+- **Session ID Extraction & E2E Architecture Blueprint** ([docs/todos/done/2025-07-12-00-27-14-research-session-id-extraction.md](../todos/done/2025-07-12-00-27-14-research-session-id-extraction.md)): Comprehensive research that evolved into a complete E2E test demonstrating:
+  - PTY-based Claude process management with node-pty
+  - Trust prompt detection and automatic response
+  - Ready state detection for interactive input
+  - Programmatic message sending with proper key sequences
+  - Session file discovery and JSONL parsing
+  - Full blueprint for claude-gui's WebSocket wrapper architecture
 
 ### Pending Research
 - Define WebSocket event protocol based on JSONL content

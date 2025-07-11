@@ -6,6 +6,7 @@ import * as pty from 'node-pty';
 
 describe('session detection', () => {
     const TEST_MESSAGE = 'hello from session detection test';
+    // Use test directory inside project
     const TEST_DIR = join(process.cwd(), 'temp', 'claude-gui-test');
     let ptyProcess: pty.IPty | null = null;
 
@@ -22,6 +23,8 @@ describe('session detection', () => {
     it('should detect Claude session ID from JSONL file', async () => {
         // Create test directory
         await fs.mkdir(TEST_DIR, { recursive: true });
+
+        console.log('Using test directory:', TEST_DIR);
 
         // Convert CWD to Claude projects path format
         const claudePath = TEST_DIR.replace(/\//g, '-');

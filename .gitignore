@@ -11,3 +11,4 @@ temp/
 *.swp
 *.swo
 *~
+/todos/worktrees/
